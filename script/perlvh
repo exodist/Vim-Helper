@@ -1,0 +1,8 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+require Vim::Helper;
+Vim::Helper->load->run( @ARGV );
+exit( 0 );
+

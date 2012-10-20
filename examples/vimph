@@ -1,0 +1,33 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Vim::Helper qw/
+    TidyFilter
+    Test
+    LoadMod
+/;
+
+Test {
+    from_mod => sub {
+        my ( $filename, $modname, @modparts ) = @_;
+        return join( "-" => @modparts ) . ".t";
+    },
+    from_test => sub {
+        my ( $filename, $modname, @modparts ) = @_;
+        $filename =~ s{^t/}{};
+        $filename =~ s{\.t$}{};
+        my ( @parts ) = split '-', $filename;
+        return join( '/' => @parts ) . ".pm";
+    },
+};
+
+TidyFilter {
+    save_rc => '~/perltidysaverc',
+    load_rc => '~/perltidyloadrc',
+};
+
+LoadMod {
+    search => [ @INC, "./lib" ],
+};
