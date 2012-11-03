@@ -1,8 +1,3 @@
-#!/usr/bin/perl
-
-use strict;
-use warnings;
-
 use Vim::Helper qw/
     TidyFilter
     Test
@@ -29,5 +24,7 @@ TidyFilter {
 };
 
 LoadMod {
-    search => [ @INC, "./lib" ],
+    search => [ "./lib", @INC ],
 };
+
+1;

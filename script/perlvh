@@ -3,6 +3,21 @@ use strict;
 use warnings;
 
 require Vim::Helper;
-Vim::Helper->load->run( @ARGV );
-exit( 0 );
+my $result = Vim::Helper->run( @ARGV );
+
+if ( $result->{stderr} ) {
+    $result->{stderr} = [ $result->{stderr} ]
+        unless ref $result->{stderr};
+
+    print STDERR @{ $result->{stderr} }
+}
+
+if ( $result->{stdout} ) {
+    $result->{stdout} = [ $result->{stdout} ]
+        unless ref $result->{stdout};
+
+    print STDERR @{ $result->{stdout} }
+}
+
+exit( $result->{code} || 0 );
 

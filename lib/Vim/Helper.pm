@@ -3,40 +3,40 @@ use strict;
 use warnings;
 
 use Carp qw/ croak /;
+require Declare::CLI;
+
+our $VERSION = "0.001";
 
 sub import {
     my $class = shift;
     my $caller = caller;
 
-    my $meta = $class->new( class => $caller );
-    {
-        no strict 'refs';
-        *{$caller . '::VH_META'} = sub { $meta };
-    }
+    my $meta = $caller->can( 'VH_META' ) ? $caller->VH_META : undef;
 
-    $meta->_load_plugin( 'Help' );
-    $meta->_load_plugin( $_ ) for @_;
+    croak "Could not find meta object. Did you accidentally specify a package in your config?"
+        unless $meta;
+
+    $meta->_load_plugin( $_, $caller ) for @_;
 
     return $meta;
 }
 
 sub new {
     my $class = shift;
-    my %config = @_;
 
-    croak "class was not specified"
-        unless $config{class};
-
-    return bless {
-        class       => $config{class},
+    my $self = bless {
         plugins     => {},
-        plugin_list => [],
+        cli         => Declare::CLI->new(),
     } => $class;
+
+    $self->cli->add_opt( 'config' );
+
+    return $self;
 }
 
-sub class       { shift->{'class'}       }
-sub plugins     { shift->{'plugins'}     }
-sub plugin_list { shift->{'plugin_list'} }
+sub cli     { shift->{'cli'}          }
+sub plugins { shift->{'plugins'}      }
+sub plugin  { $_[0]->plugins->{$_[1]} }
 
 sub _load_plugin {
     my $self = shift;
@@ -48,36 +48,45 @@ sub _load_plugin {
     my $alias = $plugin;
     $alias =~ s/::/_/g;
 
-    push @{$self->plugin_list} => [ $alias => $plugin_class ];
-
-    my $config = sub {
-        $self->plugins->{$alias} = $plugin_class->new(
-            %{$_[0] || {}},
-        );
-    };
+    $self->plugins->{$alias} = $plugin_class->new( $self->cli );
+    my $config = sub { $self->plugins->{$alias}->config( @_ ) };
 
     no strict 'refs';
     *{$caller . ":\:$alias"} = $config;
 }
 
-sub _init_plugins {
-    my $self = shift;
-    for my $plugin ( @{ $self->plugin_list }) {
-        my ( $alias, $class ) = @$plugin;
-        $self->plugins->{$alias} ||= $plugin_class->new;
-    }
-}
-
-sub load {
-    my $self = shift;
-}
-
 sub run {
-    my $self = shift;
-    my @args = @_;
-    $self->_init_plugins;
+    my $class = shift;
+    my ( @cli ) = @_;
 
+    my $self = $class->new();
+    my $package = "$class\::_Config";
+    $self->_load_plugin( 'Help', $package );
 
+    my ( $preopts ) = $self->cli->preparse( @cli );
+
+    my $config = $preopts->{config} || "$ENV{HOME}/.config/vimph";
+    croak "Could not find config file '$config'"
+        unless -f $config;
+
+    open( my $fh, "<", $config ) || die "Could not open '$config': $!\n";
+    my $data = join "" => <$fh>;
+    close( $fh );
+
+    eval <<"    EOT" || die $@;
+package $package;
+use strict;
+use warnings;
+
+sub VH_META { \$self }
+
+# line 0 "$config"
+$data
+
+1;
+    EOT
+
+    return $self->cli->handle( $self, @cli );
 }
 
 1;
