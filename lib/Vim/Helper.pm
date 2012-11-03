@@ -48,11 +48,33 @@ sub _load_plugin {
     my $alias = $plugin;
     $alias =~ s/::/_/g;
 
-    $self->plugins->{$alias} = $plugin_class->new( $self->cli );
+    $self->plugins->{$alias} = $plugin_class->new();
     my $config = sub { $self->plugins->{$alias}->config( @_ ) };
+
+    $self->add_args( $self->plugins->{$alias}->args );
+    $self->add_opts( $self->plugins->{$alias}->opts );
 
     no strict 'refs';
     *{$caller . ":\:$alias"} = $config;
+}
+
+sub add_opts {
+    my $self = shift;
+    my ( $opts ) = @_;
+
+    $self->cli->add_opt( $_ => %{ $opts->{$_} } )
+        for keys %$opts;
+}
+
+sub add_args {
+    my $self = shift;
+    my ( $args ) = @_;
+
+    for my $arg ( keys %$args ) {
+        my %copy = %{ $args->{$arg} };
+        delete $copy{help};
+        $self->cli->add_arg( $arg => %copy )
+    }
 }
 
 sub run {

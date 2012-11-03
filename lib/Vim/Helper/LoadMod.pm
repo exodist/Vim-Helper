@@ -4,12 +4,18 @@ use warnings;
 
 use Carp qw/croak/;
 
+sub args {{
+    'find' => {
+        handler => \&loadmod,
+        description => "Find a modules file name in the configured search path.",
+        help => "Usage: $0 find [CHARACTER OFFSET] \"TEXT\"",
+    },
+}}
+
+sub opts {{}}
+
 sub new {
     my $class = shift;
-    my ( $cli ) = @_;
-
-    $cli->add_arg( 'find' => \&loadmod );
-
     return bless {} => $class;
 }
 
@@ -19,10 +25,8 @@ sub config {
     my $self = shift;
     my ( $config ) = @_;
 
-    croak "oops"
-        unless $config && ref $config;
-
-    $self->{search} = $config->{search} || [ @INC ];
+    $self->{search} = $config->{search}
+        if $config->{search};
 }
 
 sub loadmod {

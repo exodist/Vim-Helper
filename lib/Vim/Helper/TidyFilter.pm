@@ -2,6 +2,9 @@ package Vim::Helper::TidyFilter;
 use strict;
 use warnings;
 
+sub opts {{}}
+sub args {{}}
+
 sub new {
     my $class = shift;
     my ( $cli ) = @_;
