@@ -2,6 +2,7 @@ use Vim::Helper qw/
     TidyFilter
     Test
     LoadMod
+    Fennec
 /;
 
 Test {

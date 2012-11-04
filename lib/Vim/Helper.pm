@@ -51,7 +51,7 @@ sub command {
 
     my @parts = ( $0 );
 
-    push @parts => "-c $opts->{config}"
+    push @parts => "-c '$opts->{config}'"
         if $opts->{config};
 
     return join " " => @parts;
@@ -70,14 +70,14 @@ sub _load_plugin {
     $self->plugins->{$alias} = $plugin_class->new();
     my $config = sub { $self->plugins->{$alias}->config( @_ ) };
 
-    $self->add_args( $self->plugins->{$alias}->args );
-    $self->add_opts( $self->plugins->{$alias}->opts );
+    $self->_add_args( $self->plugins->{$alias}->args );
+    $self->_add_opts( $self->plugins->{$alias}->opts );
 
     no strict 'refs';
     *{$caller . ":\:$alias"} = $config;
 }
 
-sub add_opts {
+sub _add_opts {
     my $self = shift;
     my ( $opts ) = @_;
 
@@ -85,7 +85,7 @@ sub add_opts {
         for keys %$opts;
 }
 
-sub add_args {
+sub _add_args {
     my $self = shift;
     my ( $args ) = @_;
 
@@ -96,17 +96,33 @@ sub add_args {
     }
 }
 
+sub read_config {
+    my $self = shift;
+    my ( $opts ) = @_;
+
+    my $config = $opts->{config} || "$ENV{HOME}/.config/vimph";
+    die "Could not find config file '$config'\n"
+        unless -f $config;
+
+    open( my $fh, "<", $config ) || die "Could not open '$config': $!\n";
+    my $data = join "" => <$fh>;
+    close( $fh );
+
+    return ( $data, $config );
+}
+
+our $PKG_COUNT = 1;
 sub run {
     my $class = shift;
     my ( @cli ) = @_;
 
     my $self = $class->new();
-    my $package = "$class\::_Config";
+    my $package = "$class\::_Config" . $PKG_COUNT++;
     $self->_load_plugin( 'Help', $package );
     $self->_load_plugin( 'VimRC', $package );
 
     my ( $preopts ) = $self->cli->preparse( @cli );
-    my $data = $self->_read_config( $preopts );
+    my ( $data, $filename ) = $self->read_config( $preopts );
 
     eval <<"    EOT" || die $@;
 package $package;
@@ -115,7 +131,7 @@ use warnings;
 
 sub VH_META { \$self }
 
-# line 1 "$config"
+# line 1 "$filename"
 $data
 # line 9 "eval"
 1;
@@ -123,22 +139,6 @@ $data
 
     return $self->cli->handle( $self, @cli );
 }
-
-sub read_config {
-    my $self = shift;
-    my ( $preopts ) = @_;
-
-    my $config = $preopts->{config} || "$ENV{HOME}/.config/vimph";
-    die "Could not find config file '$config'\n"
-        unless -f $config;
-
-    open( my $fh, "<", $config ) || die "Could not open '$config': $!\n";
-    my $data = join "" => <$fh>;
-    close( $fh );
-
-    return $data;
-}
-
 1;
 
 __END__

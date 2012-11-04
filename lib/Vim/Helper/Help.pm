@@ -21,16 +21,23 @@ sub opts {{
 
 sub opt_help {
     my $helper = shift;
-    print "Usage: $0 [OPTS] command [ARGS]\n\n" . $helper->cli->usage;
+    print _help_output( $helper );
     exit( 0 );
+}
+
+sub _help_output {
+    my $helper = shift;
+    return "Usage: $0 [OPTS] command [ARGS]\n\n" . $helper->cli->usage;
 }
 
 sub arg_help {
     my $helper = shift;
     my ( $name, $opts, $command ) = @_;
 
-    return opt_help( $helper )
-        unless $command;
+    return {
+        code   => 0,
+        stdout => _help_output( $helper ),
+    } unless $command;
 
     my $plugin;
     for $name ( keys %{ $helper->plugins }) {
