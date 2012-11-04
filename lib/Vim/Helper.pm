@@ -106,14 +106,7 @@ sub run {
     $self->_load_plugin( 'VimRC', $package );
 
     my ( $preopts ) = $self->cli->preparse( @cli );
-
-    my $config = $preopts->{config} || "$ENV{HOME}/.config/vimph";
-    die "Could not find config file '$config'\n"
-        unless -f $config;
-
-    open( my $fh, "<", $config ) || die "Could not open '$config': $!\n";
-    my $data = join "" => <$fh>;
-    close( $fh );
+    my $data = $self->_read_config( $preopts );
 
     eval <<"    EOT" || die $@;
 package $package;
@@ -129,6 +122,21 @@ $data
     EOT
 
     return $self->cli->handle( $self, @cli );
+}
+
+sub read_config {
+    my $self = shift;
+    my ( $preopts ) = @_;
+
+    my $config = $preopts->{config} || "$ENV{HOME}/.config/vimph";
+    die "Could not find config file '$config'\n"
+        unless -f $config;
+
+    open( my $fh, "<", $config ) || die "Could not open '$config': $!\n";
+    my $data = join "" => <$fh>;
+    close( $fh );
+
+    return $data;
 }
 
 1;
