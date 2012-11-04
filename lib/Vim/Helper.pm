@@ -124,7 +124,7 @@ sub VH_META { \$self }
 
 # line 1 "$config"
 $data
-
+# line 9 "eval"
 1;
     EOT
 
@@ -143,7 +143,127 @@ Vim::Helper - Extended tools to assist working with perl in vim.
 
 =head1 DESCRIPTION
 
+Vim::Helper is a framework intended to integrate with vim to make working with
+perl easier. It is a collection of plugins controlled by a config file that is
+written in perl. The framework provides a command line tool intended to be
+interfaced by vim.
+
+Every plugin provides its own options and arguments, as well as help and vimrc
+generation. Once your config file is complete you can have the tool generate
+vimrc content that you can pase into your existing vimrc.
+
 =head1 SYNOPSIS
+
+The module is 'use'd in your config file, aside from that you do not generally
+interact directly with the module.
+
+=head2 EXAMPLE CONFIG FILE
+
+See examples/* in the distribution for more.
+
+~/.config/vimph:
+
+    # use Vim::Helper with a list of plugins (Vim::Helper::[PLUGIN])
+    use Vim::Helper qw/
+        TidyFilter
+        Test
+        LoadMod
+    /;
+
+    # Each plugin is given a configuration function which is the plugin name,
+    # '::' is replaced with '_' for plugins with deeper paths.
+    # Each plugin config function takes a hashref of options. Options are plugin
+    # specific.
+
+    Test {
+        from_mod => sub {
+            my ( $filename, $modname, @modparts ) = @_;
+            return 't/' . join( "-" => @modparts ) . ".t";
+        },
+        from_test => sub {
+            my ( $filename, $modname, @modparts ) = @_;
+            $filename =~ s{^t/}{};
+            $filename =~ s{^.*/t/}{};
+            $filename =~ s{\.t$}{};
+            my ( @parts ) = split '-', $filename;
+            return join( '/' => @parts ) . '.pm';
+        },
+    };
+
+    TidyFilter {
+        save_rc => '~/.config/perltidysaverc',
+        load_rc => '~/.config/perltidyloadrc',
+    };
+
+    LoadMod {
+        search => [ "./lib", @INC ],
+    };
+
+=head2 GENERATING VIMRC
+
+    $ scripts/vimph vimrc
+
+The above command will output content that can be inserted directly into a
+.vimrc file.
+
+=head1 PLUGINS
+
+There are several plugins included with the Vim::Helper distribution.
+Additional plugins are easy to write.
+
+=head2 INCLUDED PLUGINS
+
+=over 4
+
+=item Fennec
+
+L<Vim::Helper::Fennec> - For use with L<Fennec> based test suites.
+
+=item LoadMod
+
+L<Vim::Helper::LoadMod> - Used to load the perl module that the cursor is
+sitting on. Move the cursor over the module name C<... My::Module ...> and hit
+the configured key, the module will be found and opened.
+
+=item Test
+
+L<Vim::Helper::Test> - Used to interact with tests. PRovides keys for
+automatically finding and opening test files when you are in modules, and
+vice-versa.
+
+=item TidyFilter
+
+L<Vim::Helper::TidyFilter> - Used to run perltidy on your files automatically
+when you open, save, or close them. You can use seperate tidy configs for
+loading/saving.
+
+A good use of this is if you are sane and prefer space for indentation, but
+your team requires tabs be used. You can edit in your style, and save to the
+teams style.
+
+=item VimRC
+
+B<Loaded automatically, no config options.>
+
+L<Vim::Helper::VimRC> - Used to generate the vimrc content.
+
+=item Help
+
+B<Loaded automatically, no config options.>
+
+L<Vim::Helper::Help> - Used to generate help output.
+
+=back
+
+=head2 WRITING PLUGINS
+
+See L<Vim::Helper::Plugin> for more details.
+
+=head1 META MODEL
+
+
+
+=head2 METHODS
 
 =head1 AUTHORS
 
