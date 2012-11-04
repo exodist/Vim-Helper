@@ -7,6 +7,15 @@ require Declare::CLI;
 
 our $VERSION = "0.001";
 
+for my $accessor ( qw/ cli plugins / ) {
+    no strict 'refs';
+    *$accessor = sub {
+        my $self = shift;
+        ( $self->{$accessor} ) = @_ if @_;
+        return $self->{$accessor};
+    };
+}
+
 sub import {
     my $class = shift;
     my $caller = caller;
@@ -34,9 +43,19 @@ sub new {
     return $self;
 }
 
-sub cli     { shift->{'cli'}          }
-sub plugins { shift->{'plugins'}      }
 sub plugin  { $_[0]->plugins->{$_[1]} }
+
+sub command {
+    my $self = shift;
+    my ( $opts ) = @_;
+
+    my @parts = ( $0 );
+
+    push @parts => "-c $opts->{config}"
+        if $opts->{config};
+
+    return join " " => @parts;
+}
 
 sub _load_plugin {
     my $self = shift;
@@ -84,11 +103,12 @@ sub run {
     my $self = $class->new();
     my $package = "$class\::_Config";
     $self->_load_plugin( 'Help', $package );
+    $self->_load_plugin( 'VimRC', $package );
 
     my ( $preopts ) = $self->cli->preparse( @cli );
 
     my $config = $preopts->{config} || "$ENV{HOME}/.config/vimph";
-    croak "Could not find config file '$config'"
+    die "Could not find config file '$config'\n"
         unless -f $config;
 
     open( my $fh, "<", $config ) || die "Could not open '$config': $!\n";
@@ -102,7 +122,7 @@ use warnings;
 
 sub VH_META { \$self }
 
-# line 0 "$config"
+# line 1 "$config"
 $data
 
 1;
@@ -112,3 +132,32 @@ $data
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Vim::Helper - Extended tools to assist working with perl in vim.
+
+=head1 DESCRIPTION
+
+=head1 SYNOPSIS
+
+=head1 AUTHORS
+
+Chad Granum L<exodist7@gmail.com>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2012 Chad Granum
+
+Vim-Helper is free software; Standard perl licence.
+
+Vim-Helper is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the license for more details.
+
+=cut
+

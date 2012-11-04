@@ -16,7 +16,7 @@ if ( $result->{stdout} ) {
     $result->{stdout} = [ $result->{stdout} ]
         unless ref $result->{stdout};
 
-    print STDERR @{ $result->{stdout} }
+    print @{ $result->{stdout} }
 }
 
 exit( $result->{code} || 0 );

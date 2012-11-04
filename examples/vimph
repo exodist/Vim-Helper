@@ -7,20 +7,21 @@ use Vim::Helper qw/
 Test {
     from_mod => sub {
         my ( $filename, $modname, @modparts ) = @_;
-        return join( "-" => @modparts ) . ".t";
+        return 't/' . join( "-" => @modparts ) . ".t";
     },
     from_test => sub {
         my ( $filename, $modname, @modparts ) = @_;
         $filename =~ s{^t/}{};
+        $filename =~ s{^.*/t/}{};
         $filename =~ s{\.t$}{};
         my ( @parts ) = split '-', $filename;
-        return join( '/' => @parts ) . ".pm";
+        return join( '/' => @parts ) . '.pm';
     },
 };
 
 TidyFilter {
-    save_rc => '~/perltidysaverc',
-    load_rc => '~/perltidyloadrc',
+    save_rc => 'examples/perltidyrc',
+    load_rc => 'examples/perltidyrc',
 };
 
 LoadMod {

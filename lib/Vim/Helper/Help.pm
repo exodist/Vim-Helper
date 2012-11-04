@@ -1,6 +1,7 @@
 package Vim::Helper::Help;
 use strict;
 use warnings;
+use Vim::Helper::Plugin;
 
 sub args {{
     help => {
@@ -18,16 +19,6 @@ sub opts {{
     },
 }}
 
-sub new {
-    my $class = shift;
-    return bless {} => $class;
-}
-
-sub config {
-    my $self = shift;
-    my ( $config ) = @_;
-}
-
 sub opt_help {
     my $helper = shift;
     print "Usage: $0 [OPTS] command [ARGS]\n\n" . $helper->cli->usage;
@@ -37,6 +28,9 @@ sub opt_help {
 sub arg_help {
     my $helper = shift;
     my ( $name, $opts, $command ) = @_;
+
+    return opt_help( $helper )
+        unless $command;
 
     my $plugin;
     for $name ( keys %{ $helper->plugins }) {
