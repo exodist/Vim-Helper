@@ -58,3 +58,57 @@ sub arg_help {
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Vim::Helper::Help - Provides the help output
+
+=head1 DESCRIPTION
+
+Used to provide the help output. No need to load this, it is loaded
+automatically.
+
+=head1 ARGS
+
+=over 4
+
+=item help
+
+Show help output, or get help for a specific arg.
+
+=back
+
+=head1 OPTS
+
+=over 4
+
+=item --help
+
+Show command usage.
+
+=back
+
+=head1 CONFIGURATION OPTIONS
+
+None
+
+=head1 AUTHORS
+
+Chad Granum L<exodist7@gmail.com>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2012 Chad Granum
+
+Vim-Helper is free software; Standard perl licence.
+
+Vim-Helper is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the license for more details.
+
+=cut
+

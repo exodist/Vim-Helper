@@ -46,3 +46,51 @@ sub generate {
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Vim::Helper::VimRC - Used to generate vimrc content.
+
+=head1 DESCRIPTION
+
+Loaded automatically. Used to generate vimrc content for all your plugins.
+
+=head1 ARGS
+
+=over 4
+
+=item vimrc plugin1 plugin2 ...
+
+Generate vimrc content for the specified plugin(s). If no plugins are specified
+all those configured will be used.
+
+=back
+
+=head1 OPTS
+
+NONE
+
+=head1 CONFIGURATION OPTIONS
+
+NONE
+
+=head1 AUTHORS
+
+Chad Granum L<exodist7@gmail.com>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2012 Chad Granum
+
+Vim-Helper is free software; Standard perl licence.
+
+Vim-Helper is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the license for more details.
+
+=cut
+

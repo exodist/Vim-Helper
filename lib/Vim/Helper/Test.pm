@@ -132,3 +132,126 @@ sub default_from_test {
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Vim::Helper::Test - Plugin for switching between test and implementation files.
+
+=head1 DESCRIPTION
+
+Provides keybindings that take you between test files and module files.
+
+=head1 SYNOPSIS
+
+In your config file:
+
+    use Vim::Helper qw/
+        Test
+    /;
+
+    Test {
+        from_mod => sub {
+            my ( $filename, $modname, @modparts ) = @_;
+            return 't/' . join( "-" => @modparts ) . ".t";
+        },
+        from_test => sub {
+            my ( $filename, $modname, @modparts ) = @_;
+            $filename =~ s{^t/}{};
+            $filename =~ s{^.*/t/}{};
+            $filename =~ s{\.t$}{};
+            my ( @parts ) = split '-', $filename;
+            return join( '/' => @parts ) . '.pm';
+        },
+    };
+
+=head1 ARGS
+
+=over 4
+
+=item file_test MOD_FILENAME
+
+Takes the module filename and returns the test file name.
+
+=item test_imp TEST_FILENAME
+
+Takes the test filename and returns the module file name.
+ 
+=back
+
+=head1 OPTS
+
+None
+
+=head1 CONFIGURATION OPTIONS
+
+=over 4
+
+=item from_mod  => sub { ... }
+
+How to get the test filename from a module file. Default is to take the package
+name, change the '::' to '-', and append '.t', it then looks for the
+file in 't/'. So Foo::Bar should be 't/Foo-Bar.t'.
+
+A custom function would look like this:
+
+sub {
+    my ( $filename, $modname, @modparts ) = @_;
+    ...
+    return $new_filename;
+}
+
+$filename will always be the files name. $modname is read from the top of the
+file, and @modparts contains each section of the module name split on '::'. If
+the file cannot be read an error is thrown, so it must be valid and contain a
+package declaration.
+
+=item from_test => sub { ... }
+
+How to get the module filename from a test file. Default is to take the test
+filename, change '-' to '/', and strip off the directory and '.t'. The search
+path for the module is whatever is provided to LoadMod, or @INC if none LoadMod
+was not confgiured.
+
+A custom function would look like this:
+
+sub {
+    my ( $filename, $modname, @modparts ) = @_;
+    ...
+    return $new_filename;
+}
+
+$filename will always be the files name. $modname is read from the top of the
+file, and @modparts contains each section of the module name split on '::'.
+Unlike the from_mod function, $modname may be undefined, and no declaration is
+required in the test files.
+
+=item test_key  => '<Leader>gt'
+
+Key binding for moving from module to test.
+
+=item imp_key   => '<Leader>gi'
+
+Key binding for moving from test to module.
+
+=back
+
+=head1 AUTHORS
+
+Chad Granum L<exodist7@gmail.com>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2012 Chad Granum
+
+Vim-Helper is free software; Standard perl licence.
+
+Vim-Helper is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the license for more details.
+
+=cut
+

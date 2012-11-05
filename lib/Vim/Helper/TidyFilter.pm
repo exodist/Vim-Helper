@@ -4,15 +4,14 @@ use warnings;
 use File::Temp qw/tempfile/;
 use Carp qw/croak/;
 
+#<pippijn> :let o=system("echo echo \"'hello'\"")
+#<pippijn> :execute o
+#<pippijn> :execute system("echo echo ...etc
+
 use Vim::Helper::Plugin (
     save_rc => { required => 1 },
     load_rc => { required => 1 },
 );
-
-#<pippijn> :let o=system("echo echo \"'hello'\"")
-#<pippijn> :execute o
-#<pippijn> :execute system("echo echo ...etc
-#<pippijn> all works here
 
 sub args {{
     tidy_load => {
@@ -122,3 +121,75 @@ sub abort {
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Vim::Helper::TidyFilter - Run perltidy on the buffer when files are loaded or
+saved.
+
+=head1 DESCRIPTION
+
+Used to run perltidy on files as you edit them. Can have different tidy configs
+for loading and saving.
+
+=head1 SYNOPSIS
+
+In your config file:
+
+    use Vim::Helper qw/
+        TidyFilter
+    /;
+
+    TidyFilter {
+        save_rc => 'PATH/TO/perltidy.rc',
+        load_rc => 'PATH/TO/perltidy.rc',
+    };
+
+=head1 ARGS
+
+=over 4
+
+=item tidy_load
+
+Read perl content from stdin, tidy it, return to stdout. Uses your load_rc.
+
+=item tidy_save
+
+Read perl content from stdin, tidy it, return to stdout. Uses your save_rc.
+
+=back
+
+=head1 OPTS
+
+None
+
+=head1 CONFIGURATION OPTIONS
+
+=over 4
+
+=item save_rc => 'PATH/TO/perltidy.rc'
+
+=item load_rc => 'PATH/TO/perltidy.rc'
+
+=back
+
+=head1 AUTHORS
+
+Chad Granum L<exodist7@gmail.com>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2012 Chad Granum
+
+Vim-Helper is free software; Standard perl licence.
+
+Vim-Helper is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the license for more details.
+
+=cut
+

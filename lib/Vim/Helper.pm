@@ -274,9 +274,45 @@ See L<Vim::Helper::Plugin> for more details.
 
 =head1 META MODEL
 
-
+In your configuration file you will automatically be given an instance of
+Vim::Helper accessable via the VH_META function/method. The configuration
+functions provided to you act upon this meta object. Ths object also stores all
+loaded plugins.
 
 =head2 METHODS
+
+=over 4
+
+=item $obj = Vim::Helper->new()
+
+Create a new instance (You should never need to use this directly)
+
+=item $cli_obj = $obj->cli()
+
+Get the L<Declare::CLI> object used to manage options and arguments.
+
+=item $plugins = $obj->plugins()
+
+Get the hashref of all the plugins.
+
+=item $plugin = $obj->plugin( $plugin_name )
+
+Get the instance of a specific plugin.
+
+=item $command = $obj->command( $opts )
+
+Reconstruct the command called to launch the program, including config file if
+it was specified. No other options are reconstructed.
+
+=item ( $content, $file ) = $obj->read_config( $opts )
+
+Get the content of the config file, also returns the filename that was read.
+
+=item $result = $obj->run( @cli )
+
+Run with the command line arguments specified in @cli. (Example: @ARGV)
+
+=back
 
 =head1 AUTHORS
 

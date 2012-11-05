@@ -98,3 +98,83 @@ sub find_file {
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Vim::Helper::LoadMod - Find the module under the cursor
+
+=head1 DESCRIPTION
+
+Find and open the file for the module under the cursor.
+
+=head1 SYNOPSIS
+
+In your config file:
+
+    use Vim::Helper qw/
+        LoadMod
+    /;
+
+    LoadMod {
+        search => [ './lib', ... ],
+        key    => '<Leader>gm',
+    };
+
+=head1 ARGS
+
+=over 4
+
+=item find OFFSET "TEXT"
+
+Find the module listed in "TEXT" at the specified character offset.
+
+Example:
+
+    vimph find 10 "require Foo::Bar( ... );" 
+
+This will load the Foo::Bar module.
+
+The offset should be any character that makes up the modules name (typically
+the current position of the cursor in vim). The text will generally be the
+entire line from the file.
+
+=back
+
+=head1 OPTS
+
+NONE
+
+=head1 CONFIGURATION OPTIONS
+
+=over 4
+
+=item search => [ @PATHS_TO_CHECK ],
+
+Paths to search for the module source. Defaults to @INC.
+
+=item key => $KEY
+
+Key to bind to the action in your vimrc file. Defaults to '<Leader>gm'.
+
+=back
+
+=head1 AUTHORS
+
+Chad Granum L<exodist7@gmail.com>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2012 Chad Granum
+
+Vim-Helper is free software; Standard perl licence.
+
+Vim-Helper is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the license for more details.
+
+=cut
+
