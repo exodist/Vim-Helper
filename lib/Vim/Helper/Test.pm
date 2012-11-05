@@ -3,10 +3,14 @@ use strict;
 use warnings;
 
 use Vim::Helper::Plugin (
-    from_mod  => {default => \&default_from_mod},
-    from_test => {default => \&default_from_test},
-    test_key  => {default => '<Leader>gt'},
-    imp_key   => {default => '<Leader>gi'},
+    from_mod => {
+        default => sub { \&default_from_mod }
+    },
+    from_test => {
+        default => sub { \&default_from_test }
+    },
+    test_key => {default => '<Leader>gt'},
+    imp_key  => {default => '<Leader>gi'},
 );
 
 sub args {
