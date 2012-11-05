@@ -22,7 +22,8 @@ my $build = Module::Build->new(
             repository  => 'http://github.com/exodist/Vim-Helper',
             bugtracker  => 'http://github.com/exodist/Vim-Helper',
         },
-    }
+    },
+    script_files => [ 'script/vimph' ],
 );
 
 $build->create_build_script;

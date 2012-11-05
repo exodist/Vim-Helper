@@ -35,13 +35,13 @@ sub vimrc {
 return <<"    EOT";
 function! LoadTidyFilter()
     let cur_line = line(".")
-    :silent :%!$cmd tidyfilter load
+    :silent :%!$cmd tidy_load
     exe ":" . cur_line
 endfunction
 
 function! SaveTidyFilter()
     let cur_line = line(".")
-    :silent :%!$cmd tidyfilter save
+    :silent :%!$cmd tidy_save
     exe ":" . cur_line
 endfunction
 
