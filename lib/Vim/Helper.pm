@@ -7,7 +7,7 @@ require Declare::CLI;
 
 our $VERSION = "0.001";
 
-for my $accessor ( qw/ cli plugins / ) {
+for my $accessor (qw/ cli plugins /) {
     no strict 'refs';
     *$accessor = sub {
         my $self = shift;
@@ -17,10 +17,10 @@ for my $accessor ( qw/ cli plugins / ) {
 }
 
 sub import {
-    my $class = shift;
+    my $class  = shift;
     my $caller = caller;
 
-    my $meta = $caller->can( 'VH_META' ) ? $caller->VH_META : undef;
+    my $meta = $caller->can('VH_META') ? $caller->VH_META : undef;
 
     croak "Could not find meta object. Did you accidentally specify a package in your config?"
         unless $meta;
@@ -34,22 +34,22 @@ sub new {
     my $class = shift;
 
     my $self = bless {
-        plugins     => {},
-        cli         => Declare::CLI->new(),
+        plugins => {},
+        cli     => Declare::CLI->new(),
     } => $class;
 
-    $self->cli->add_opt( 'config' );
+    $self->cli->add_opt('config');
 
     return $self;
 }
 
-sub plugin  { $_[0]->plugins->{$_[1]} }
+sub plugin { $_[0]->plugins->{$_[1]} }
 
 sub command {
     my $self = shift;
-    my ( $opts ) = @_;
+    my ($opts) = @_;
 
-    my @parts = ( $0 );
+    my @parts = ($0);
 
     push @parts => "-c '$opts->{config}'"
         if $opts->{config};
@@ -68,7 +68,7 @@ sub _load_plugin {
     $alias =~ s/::/_/g;
 
     $self->plugins->{$alias} = $plugin_class->new();
-    my $config = sub { $self->plugins->{$alias}->config( @_ ) };
+    my $config = sub { $self->plugins->{$alias}->config(@_) };
 
     $self->_add_args( $self->plugins->{$alias}->args );
     $self->_add_opts( $self->plugins->{$alias}->opts );
@@ -79,26 +79,25 @@ sub _load_plugin {
 
 sub _add_opts {
     my $self = shift;
-    my ( $opts ) = @_;
+    my ($opts) = @_;
 
-    $self->cli->add_opt( $_ => %{ $opts->{$_} } )
-        for keys %$opts;
+    $self->cli->add_opt( $_ => %{$opts->{$_}} ) for keys %$opts;
 }
 
 sub _add_args {
     my $self = shift;
-    my ( $args ) = @_;
+    my ($args) = @_;
 
     for my $arg ( keys %$args ) {
-        my %copy = %{ $args->{$arg} };
+        my %copy = %{$args->{$arg}};
         delete $copy{help};
-        $self->cli->add_arg( $arg => %copy )
+        $self->cli->add_arg( $arg => %copy );
     }
 }
 
 sub read_config {
     my $self = shift;
-    my ( $opts ) = @_;
+    my ($opts) = @_;
 
     my $config = $opts->{config} || "$ENV{HOME}/.config/vimph";
     die "Could not find config file '$config'\n"
@@ -106,22 +105,22 @@ sub read_config {
 
     open( my $fh, "<", $config ) || die "Could not open '$config': $!\n";
     my $data = join "" => <$fh>;
-    close( $fh );
+    close($fh);
 
     return ( $data, $config );
 }
 
 sub run {
     my $class = shift;
-    my ( @cli ) = @_;
+    my (@cli) = @_;
 
-    my $self = $class->new();
+    my $self    = $class->new();
     my $package = "$class\::_Config";
-    $self->_load_plugin( 'Help', $package );
+    $self->_load_plugin( 'Help',  $package );
     $self->_load_plugin( 'VimRC', $package );
 
-    my ( $preopts ) = $self->cli->preparse( @cli );
-    my ( $data, $filename ) = $self->read_config( $preopts );
+    my ($preopts) = $self->cli->preparse(@cli);
+    my ( $data, $filename ) = $self->read_config($preopts);
 
     eval <<"    EOT" || die $@;
 package $package;

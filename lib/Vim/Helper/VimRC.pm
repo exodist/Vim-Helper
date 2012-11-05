@@ -4,26 +4,28 @@ use warnings;
 
 use Vim::Helper::Plugin;
 
-sub args {{
-    vimrc => {
-        handler => \&generate,
-        description => "Generate a vimrc for your config",
-        help => "Usage: $0 vimrc >> ~/.vimrc",
-    }
-}}
+sub args {
+    {
+        vimrc => {
+            handler     => \&generate,
+            description => "Generate a vimrc for your config",
+            help        => "Usage: $0 vimrc >> ~/.vimrc",
+        }
+    };
+}
 
 sub generate {
     my $helper = shift;
     my ( $name, $opts, @plugins ) = @_;
 
-    @plugins = keys %{ $helper->plugins }
+    @plugins = keys %{$helper->plugins}
         unless @plugins;
 
     my @out;
 
-    for my $name ( @plugins ) {
-        my $plugin = $helper->plugin( $name );
-        next unless $plugin->can( 'vimrc' );
+    for my $name (@plugins) {
+        my $plugin = $helper->plugin($name);
+        next unless $plugin->can('vimrc');
 
         my $content = $plugin->vimrc( $helper, $opts );
         next unless $content;
@@ -40,7 +42,7 @@ sub generate {
     }
 
     return {
-        code => 0,
+        code   => 0,
         stdout => \@out,
     };
 }

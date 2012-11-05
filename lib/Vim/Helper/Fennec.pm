@@ -4,15 +4,15 @@ use warnings;
 
 use Carp qw/croak/;
 use Vim::Helper::Plugin(
-    run_key  => { default => '<F8>'  },
-    less_key => { default => '<F12>' },
+    run_key  => {default => '<F8>'},
+    less_key => {default => '<F12>'},
 );
 
 sub vimrc {
     my $self = shift;
     my ( $helper, $opts ) = @_;
 
-    my $cmd = $helper->command( $opts );
+    my $cmd = $helper->command($opts);
 
     my $run_key  = $self->run_key;
     my $less_key = $self->less_key;

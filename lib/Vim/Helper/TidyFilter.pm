@@ -9,30 +9,32 @@ use Carp qw/croak/;
 #<pippijn> :execute system("echo echo ...etc
 
 use Vim::Helper::Plugin (
-    save_rc => { required => 1 },
-    load_rc => { required => 1 },
+    save_rc => {required => 1},
+    load_rc => {required => 1},
 );
 
-sub args {{
-    tidy_load => {
-        handler => \&load,
-        description => "Read perl content from stdin, tidy it, return to stdout",
-        help => "Usage: INPUT | $0 load > OUTPUT",
-    },
-    tidy_save => {
-        handler => \&save,
-        description => "Read perl content from stdin, tidy it, return to stdout",
-        help => "Usage: INPUT | $0 save > OUTPUT",
-    },
-}}
+sub args {
+    {
+        tidy_load => {
+            handler     => \&load,
+            description => "Read perl content from stdin, tidy it, return to stdout",
+            help        => "Usage: INPUT | $0 load > OUTPUT",
+        },
+        tidy_save => {
+            handler     => \&save,
+            description => "Read perl content from stdin, tidy it, return to stdout",
+            help        => "Usage: INPUT | $0 save > OUTPUT",
+        },
+    };
+}
 
 sub vimrc {
     my $self = shift;
     my ( $helper, $opts ) = @_;
 
-    my $cmd = $helper->command( $opts );
+    my $cmd = $helper->command($opts);
 
-return <<"    EOT";
+    return <<"    EOT";
 function! LoadTidyFilter()
     let cur_line = line(".")
     :silent :%!$cmd tidy_load
@@ -67,35 +69,35 @@ augroup END
 
 sub load {
     my $helper = shift;
-    my $self = $helper->plugin( 'TidyFilter' );
+    my $self   = $helper->plugin('TidyFilter');
     my ( $name, $opts ) = @_;
     $self->_tidy( $self->load_rc );
 }
 
 sub save {
     my $helper = shift;
-    my $self = $helper->plugin( 'TidyFilter' );
+    my $self   = $helper->plugin('TidyFilter');
     my ( $name, $opts ) = @_;
     $self->_tidy( $self->save_rc );
 }
 
 sub _tidy {
     my $self = shift;
-    my ( $rc ) = @_;
+    my ($rc) = @_;
 
     my ( $fhi, $tmpin )  = tempfile( UNLINK => 1 );
     my ( $fho, $tmpout ) = tempfile( UNLINK => 1 );
-    close( $fho );
-    
+    close($fho);
+
     my $content = join "" => <STDIN>;
     print $fhi $content;
-    close( $fhi );
-   
+    close($fhi);
+
     # We need to unlink any existing perltidy.ERR file
     # We will run perltidy, if something unreasonable happens we abort
     unlink "perltidy.ERR";
     my $cmd = "cat '$tmpin' | perltidy -pro=\"$rc\" 1>'$tmpout'";
-    system( $cmd ) && return $self->abort( $content, "Error: $!" );
+    system($cmd ) && return $self->abort( $content, "Error: $!" );
 
     # If everything goes well we will output the tidy version, if there was a
     # problem we will output the original.
@@ -105,19 +107,19 @@ sub _tidy {
 
     open( $fho, "<", $tmpout ) && $self->abort( $content, "Could not open '$tmpout': $!" );
     $content = join "" => <$fho>;
-    close( $fho );
+    close($fho);
 
-    return { code => 0, stdout => $content };
+    return {code => 0, stdout => $content};
 }
 
 sub abort {
     my $self = shift;
     my ( $content, $error ) = @_;
     return {
-        code => 1,
+        code   => 1,
         stderr => "$error\n",
         stdout => $content,
-    }
+    };
 }
 
 1;
