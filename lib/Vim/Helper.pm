@@ -111,13 +111,12 @@ sub read_config {
     return ( $data, $config );
 }
 
-our $PKG_COUNT = 1;
 sub run {
     my $class = shift;
     my ( @cli ) = @_;
 
     my $self = $class->new();
-    my $package = "$class\::_Config" . $PKG_COUNT++;
+    my $package = "$class\::_Config";
     $self->_load_plugin( 'Help', $package );
     $self->_load_plugin( 'VimRC', $package );
 
@@ -136,6 +135,12 @@ $data
 # line 9 "eval"
 1;
     EOT
+
+    {
+        # Clear the config package so that it can be re-used
+        no strict 'refs';
+        undef( *{"$package\::"} );
+    }
 
     return $self->cli->handle( $self, @cli );
 }
