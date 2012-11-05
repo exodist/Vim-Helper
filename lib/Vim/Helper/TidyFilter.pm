@@ -96,16 +96,16 @@ sub _tidy {
     # We need to unlink any existing perltidy.ERR file
     # We will run perltidy, if something unreasonable happens we abort
     unlink "perltidy.ERR";
-    my $cmd = "cat '$tmpin' | perltidy -pro=\"$rc\" 1>'$tmpout'";
-    system($cmd ) && return $self->abort( $content, "Error: $!" );
+    my $cmd = "cat '$tmpin' | perltidy -pro=\"$rc\" 1>'$tmpout' 2>/dev/null";
+    system($cmd ) && return $self->abort($content);
 
     # If everything goes well we will output the tidy version, if there was a
     # problem we will output the original.
 
-    return $self->abort( $content, "Error: found perltidy.err file" )
+    return $self->abort($content)
         if -e "perltidy.ERR";
 
-    open( $fho, "<", $tmpout ) && $self->abort( $content, "Could not open '$tmpout': $!" );
+    open( $fho, "<", $tmpout ) && $self->abort($content);
     $content = join "" => <$fho>;
     close($fho);
 
@@ -114,10 +114,9 @@ sub _tidy {
 
 sub abort {
     my $self = shift;
-    my ( $content, $error ) = @_;
+    my ($content) = @_;
     return {
         code   => 1,
-        stderr => "$error\n",
         stdout => $content,
     };
 }
